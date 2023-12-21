@@ -23,7 +23,6 @@ bot.on('message', (msg) => {
   if (msg.text.toString().toLowerCase().includes(bye)) {
   bot.sendMessage(msg.chat.id, "Hope to see you around again , Bye");
   }
-  
 });
 
 bot.onText(/\/start/, (msg) => {
@@ -32,8 +31,14 @@ bot.onText(/\/start/, (msg) => {
   
 });
 
+bot.on('message', (msg) => {
 
-
+  var bye = "bye";
+  if (msg.text.toString().toLowerCase().includes(bye)) {
+  bot.sendMessage(msg.chat.id, "Have a nice day " + msg.from.first_name);
+  }
+  
+});
 
 app.listen(3000, () => {
   console.log(`Server running at Port 3000`);
