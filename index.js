@@ -4,69 +4,56 @@ const express = require("express")
 require("dotenv").config()
 
 const app = express();
-
-app.use(express.json());
+app.use(express.json())
 
 // Replace with your Telegram bot token
 const botToken = process.env.TOKEN;
-const chatId = process.env.CHATID;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/telegram_tracking');
+mongoose.connect('mongodb://127.0.0.1:27017/chatmembers');
 
-// Create a schema for tracking information
-const trackingSchema = new mongoose.Schema({
-  inviteLink: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  joinedCount: {
-    type: Number,
-    default: 0,
-  },
-  leftCount: {
-    type: Number,
-    default: 0,
-  },
+const chatMemberCountSchema = new mongoose.Schema({
+  chatId: { type: Number, required: true, unique: true },
+  joinedMembers: { type: Number, default: 0 },
+  leftMembers: { type: Number, default: 0 },
+  inviteLink: { type: String },
 });
 
-// Create a model for tracking information
-const Tracking = mongoose.model('Tracking', trackingSchema);
+// Create a model from the schema
+const ChatMemberCount = mongoose.model('ChatMemberCount', chatMemberCountSchema);
 
-// Create a new Telegram bot
+// Create a bot instance
 const bot = new TelegramBot(botToken, { polling: true });
 
-// Event handler for updates in chat members
-bot.on('chatMemberUpdated', async (update) => {
-  console.log(update)
-  const chatId = update.chat.id;
-  const inviteLink = getInviteLinkFromChat(update.chat);
-  const status = update.new_chat_member.status; // 'member' or 'left' or 'kicked'
+// Function to get the invite link and update the chat member count
+async function updateMemberCount(chatId, isJoin) {
+  const inviteLink = await bot.exportChatInviteLink(chatId);
 
-  try {
-    let trackingInfo = await Tracking.findOne({ inviteLink });
+  // Update or create the chat member count in the database
+  const update = isJoin ? { $inc: { joinedMembers: 1 }, inviteLink } : { $inc: { leftMembers: 1 }, inviteLink };
+  await ChatMemberCount.findOneAndUpdate({ chatId }, update, { upsert: true });
 
-    if (!trackingInfo) {
-      trackingInfo = new Tracking({ inviteLink });
-    }
-
-    if (status === 'member') {
-      // User joined the chat
-      trackingInfo.joinedCount += 1;
-    } else if (status === 'left' || status === 'kicked') {
-      // User left or was kicked from the chat
-      trackingInfo.leftCount += 1;
-    }
-
-    await trackingInfo.save();
-  } catch (error) {
-    console.error('Error updating tracking information:', error.message);
-  }
-});
-
-// Helper function to extract the invite link from the chat
-function getInviteLinkFromChat(chat) {
-  return chat.description || '';
+  // Log the updated count with the invite link
+  const count = await ChatMemberCount.findOne({ chatId });
+  const action = isJoin ? 'joined' : 'left';
+  console.log(`Member ${action} the chat ${chatId}. ${action.charAt(0).toUpperCase() + action.slice(1)} Members: ${count[`${action}Members`]}. Invite Link: ${count.inviteLink}`);
 }
 
+// Listen for new chat members
+bot.on('new_chat_members', (msg) => {
+  const chatId = msg.chat.id;
+  updateMemberCount(chatId, true);
+});
+
+// Listen for left chat members
+bot.on('left_chat_member', async (msg) => {
+  const chatId = msg.chat.id;
+  updateMemberCount(chatId, false);
+});
+
+// Handle errors
+bot.on('polling_error', (error) => {
+  console.error('Polling error:', error);
+});
+
+console.log('Bot is running...');
