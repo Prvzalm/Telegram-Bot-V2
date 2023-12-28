@@ -1,98 +1,76 @@
-const TelegramBot = require('node-telegram-bot-api');
+const { Telegraf } = require('telegraf');
 const mongoose = require('mongoose');
-const express = require("express")
-require("dotenv").config()
-
-const app = express();
-app.use(express.json())
-
-// Replace with your Telegram bot token
-const botToken = process.env.TOKEN;
+require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/chatmembers');
+mongoose.connect('mongodb://127.0.0.1:27017/chatmemberscount');
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => console.log('Connected to MongoDB'));
 
-const chatMemberCountSchema = new mongoose.Schema({
-  chatId: { type: Number, required: true, unique: true },
-  adminId: { type: Number, required: true },
-  adminInviteLinks: [
-    {
-      link: { type: String, required: true },
-      joinedMembers: [
-        {
-          userId: { type: Number, required: true },
-          joinedAt: { type: Date, default: Date.now },
-        },
-      ],
-    },
-  ],
-  leftMembers: [
-    {
-      userId: { type: Number, required: true },
-      leftAt: { type: Date, default: Date.now },
-    },
-  ],
+// Create a schema for chat members
+const chatMemberSchema = new mongoose.Schema({
+  userId: { type: Number, required: true },
+  channelName: { type: String, required: true },
+  joinedAt: { type: Date, default: Date.now },
+  leftAt: { type: Date },
 });
 
 // Create a model from the schema
-const ChatMemberCount = mongoose.model('ChatMemberCount', chatMemberCountSchema);
+const ChatMember = mongoose.model('ChatMember', chatMemberSchema);
 
-// Create a bot instance
-const bot = new TelegramBot(botToken, { polling: true });
+// Create a new instance of Telegraf
+const bot = new Telegraf(process.env.TOKEN);
 
-// Function to update the member count when a member joins through an admin-invited link
-async function updateAdminMemberCount(chatId, userId, adminId, inviteLink) {
-  const timestamp = new Date();
+// Middleware to handle new chat members
+bot.on('new_chat_members', async (ctx) => {
+  const channelName = ctx.chat.title;
+  const userIds = ctx.message.new_chat_members.map(member => member.id);
 
-  // Update the chat member count in the database
-  await ChatMemberCount.findOneAndUpdate(
-    { chatId, 'adminInviteLinks.link': inviteLink },
-    { $push: { 'adminInviteLinks.$.joinedMembers': { userId, joinedAt: timestamp } } }
-  );
+  userIds.forEach(async (userId) => {
+    try {
+      // Save chat member information to MongoDB
+      const chatMember = new ChatMember({ userId, channelName });
+      await chatMember.save();
 
-  console.log(`Member joined through admin-invited link in chat ${chatId}: ${inviteLink}. Member ID: ${userId}`);
-}
+      console.log(`New member joined! Channel Name: ${channelName}, Member ID: ${userId}`);
 
-// Example usage: manually create invite links or use another mechanism
-// Then, call updateAdminMemberCount when new members join through these links
-// const inviteLink = 'your manually created or obtained invite link';
-// await updateAdminMemberCount(CHAT_ID, USER_ID, ADMIN_ID, inviteLink);
-
-// Listen for new chat members
-bot.on('new_chat_members', async (msg) => {
-  const chatId = msg.chat.id;
-  const userIds = msg.new_chat_members.map(member => member.id);
-
-  // Check if the member joined through an admin-invited link
-  const entities = msg.entities || [];
-  const adminInviteLinks = entities
-    .filter(entity => entity.type === 'text_link')
-    .map(linkEntity => linkEntity.url);
-
-  adminInviteLinks.forEach(async (inviteLink) => {
-    userIds.forEach(async (userId) => {
-      await updateAdminMemberCount(chatId, userId, ADMIN_ID, inviteLink);
-    });
+      // Get and log the updated join members count
+      const joinMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: false } });
+      console.log(`Updated Join Members Count: ${joinMembersCount}`);
+    } catch (error) {
+      console.error('Error saving chat member to MongoDB:', error);
+    }
   });
 });
 
-// Listen for left chat members
-bot.on('left_chat_member', async (msg) => {
-  const chatId = msg.chat.id;
-  const userId = msg.left_chat_member.id;
+// Middleware to handle left chat members
+bot.on('left_chat_member', async (ctx) => {
+  const channelName = ctx.chat.title;
+  const userId = ctx.message.left_chat_member.id;
 
-  // Update the member count when a member leaves
-  await ChatMemberCount.findOneAndUpdate(
-    { chatId, 'leftMembers.userId': userId },
-    { $set: { 'leftMembers.$.leftAt': new Date() } }
-  );
+  try {
+    // Update leftAt for the member in MongoDB
+    await ChatMember.findOneAndUpdate(
+      { userId, channelName, leftAt: { $exists: false } },
+      { $set: { leftAt: new Date() } }
+    );
 
-  console.log(`Member left chat ${chatId}. Member ID: ${userId}`);
+    console.log(`Member left! Channel Name: ${channelName}, Member ID: ${userId}`);
+
+    // Get and log the updated join members count
+    const joinMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: false } });
+    console.log(`Updated Join Members Count: ${joinMembersCount}`);
+
+    // Get and log the updated left members count
+    const leftMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: true } });
+    console.log(`Updated Left Members Count: ${leftMembersCount}`);
+  } catch (error) {
+    console.error('Error updating leftAt in MongoDB:', error);
+  }
 });
 
-// Handle errors
-bot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
-});
-
-console.log('Bot is running...');
+// Start the bot
+bot.launch({
+  allowedUpdates: ['chat_member', 'message']
+}).then(() => console.log('Bot is running...'));
