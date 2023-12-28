@@ -10,10 +10,11 @@ db.once('open', () => console.log('Connected to MongoDB'));
 
 // Create a schema for chat members
 const chatMemberSchema = new mongoose.Schema({
-  userId: { type: Number, required: true },
   channelName: { type: String, required: true },
   joinedAt: { type: Date, default: Date.now },
   leftAt: { type: Date },
+  joinedMembersCount: { type: Number, default: 0 },
+  leftMembersCount: { type: Number, default: 0 },
 });
 
 // Create a model from the schema
@@ -25,44 +26,38 @@ const bot = new Telegraf(process.env.TOKEN);
 // Middleware to handle new chat members
 bot.on('new_chat_members', async (ctx) => {
   const channelName = ctx.chat.title;
-  const userIds = ctx.message.new_chat_members.map(member => member.id);
 
-  userIds.forEach(async (userId) => {
-    try {
-      // Save chat member information to MongoDB
-      const chatMember = new ChatMember({ userId, channelName });
-      await chatMember.save();
+  try {
+    // Save chat member information to MongoDB
+    await ChatMember.create({ channelName });
+    console.log(`New member joined! Channel Name: ${channelName}`);
 
-      console.log(`New member joined! Channel Name: ${channelName}, Member ID: ${userId}`);
-
-      // Get and log the updated join members count
-      const joinMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: false } });
-      console.log(`Updated Join Members Count: ${joinMembersCount}`);
-    } catch (error) {
-      console.error('Error saving chat member to MongoDB:', error);
-    }
-  });
+    // Update and log the updated join members count
+    const joinMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: false } });
+    console.log(`Updated Join Members Count: ${joinMembersCount}`);
+  } catch (error) {
+    console.error('Error saving chat member to MongoDB:', error);
+  }
 });
 
 // Middleware to handle left chat members
 bot.on('left_chat_member', async (ctx) => {
   const channelName = ctx.chat.title;
-  const userId = ctx.message.left_chat_member.id;
 
   try {
     // Update leftAt for the member in MongoDB
     await ChatMember.findOneAndUpdate(
-      { userId, channelName, leftAt: { $exists: false } },
-      { $set: { leftAt: new Date() } }
+      { channelName, leftAt: { $exists: false } },
+      { $set: { leftAt: new Date() }, $inc: { leftMembersCount: 1 } }
     );
 
-    console.log(`Member left! Channel Name: ${channelName}, Member ID: ${userId}`);
+    console.log(`Member left! Channel Name: ${channelName}`);
 
-    // Get and log the updated join members count
+    // Update and log the updated join members count
     const joinMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: false } });
     console.log(`Updated Join Members Count: ${joinMembersCount}`);
 
-    // Get and log the updated left members count
+    // Update and log the updated left members count
     const leftMembersCount = await ChatMember.countDocuments({ channelName, leftAt: { $exists: true } });
     console.log(`Updated Left Members Count: ${leftMembersCount}`);
   } catch (error) {
@@ -71,6 +66,4 @@ bot.on('left_chat_member', async (ctx) => {
 });
 
 // Start the bot
-bot.launch({
-  allowedUpdates: ['chat_member', 'message']
-}).then(() => console.log('Bot is running...'));
+bot.launch().then(() => console.log('Bot is running...'));
