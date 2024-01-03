@@ -1,28 +1,22 @@
 const { Telegraf } = require('telegraf');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const chatMembersRouter = require('./routes/chatMembers');
+const ChatMember = require('./models/ChatMemberSchema')
+
+const app = express();
+const port = 5000;
+
+app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect('mongodb://127.0.0.1:27017/telegramBot');
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => console.log('Connected to MongoDB'));
-
-// Create a schema for chat members
-const chatMemberSchema = new mongoose.Schema({
-  channelName: { type: String, required: true },
-  joinedMembersCount: { type: Number, default: 0 },
-  leftMembersCount: { type: Number, default: 0 },
-  members: [{
-    memberId: { type: Number, required: true },
-    chatLink: { type: String },
-    joinedAt: { type: Date },
-    leftAt: { type: Date },
-  }],
-});
-
-// Create a model from the schema
-const ChatMember = mongoose.model('ChatMember', chatMemberSchema);
 
 // Create a new instance of Telegraf
 const bot = new Telegraf(process.env.TOKEN);
@@ -31,7 +25,7 @@ const bot = new Telegraf(process.env.TOKEN);
 bot.on('chat_member', async (ctx) => {
   const chatName = ctx.chatMember.chat.title;
   const memberId = ctx.chatMember.new_chat_member.user.id;
-  const chatLink = ctx.chatMember.invite_link;
+  const chatLink = ctx.chatMember.invite_link ? ctx.chatMember.invite_link.invite_link : "None";
   const status = ctx.chatMember.new_chat_member.status
   console.log(chatLink)
 
@@ -104,3 +98,10 @@ bot.on('chat_member', async (ctx) => {
 bot.launch({
   allowedUpdates: ['chat_member']
 }).then(() => console.log('Bot is running...'));
+
+// Use the route
+app.use('/api/chatMembers', chatMembersRouter);
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
