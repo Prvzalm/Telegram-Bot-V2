@@ -52,7 +52,7 @@ bot.on('chat_member', async (ctx) => {
         // Update array element if it's an array
         await ChatMember.updateOne(
           {
-            channelName: chatName, chatLink: chatLink
+            channelName: chatName
           },
           {
             $inc: { joinedMembersCount: 1, }, /*Increment joinedMembersCount for the channel*/
