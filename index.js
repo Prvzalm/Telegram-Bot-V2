@@ -42,7 +42,7 @@ bot.on('chat_member', async (ctx) => {
           joinedMembersCount: 1, // Increment joinedMembersCount for the channel
           members: [{
             memberId,
-            chatLink: chatLink || '',
+            chatLink: chatLink,
             joinedAt: new Date(),
           }],
         });
@@ -52,14 +52,14 @@ bot.on('chat_member', async (ctx) => {
         // Update array element if it's an array
         await ChatMember.updateOne(
           {
-            channelName: chatName,
+            channelName: chatName, chatLink: chatLink
           },
           {
             $inc: { joinedMembersCount: 1, }, /*Increment joinedMembersCount for the channel*/
             $push: {
               members: {  // Use $push to add a new member to the array
                 memberId,
-                chatLink: chatLink || '',
+                chatLink: chatLink,
                 joinedAt: new Date(),
               },
             }
