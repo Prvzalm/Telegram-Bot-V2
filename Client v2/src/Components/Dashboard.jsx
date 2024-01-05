@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 const Dashboard = ({ chatMembers }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterDate, setFilterDate] = useState(null);
   const [filteredChatMembers, setFilteredChatMembers] = useState(chatMembers);
 
   const handleSearchChange = (e) => {
@@ -12,8 +13,25 @@ const Dashboard = ({ chatMembers }) => {
     const filteredChannels = chatMembers.filter((channel) =>
       channel.channelName.toLowerCase().includes(query)
     );
+    
+    if (filterDate) {
+      const filteredByDate = filteredChannels.filter((channel) =>
+        channel.members.some(
+          (member) =>
+            member.joinedAt &&
+            new Date(member.joinedAt).toLocaleDateString() ===
+              filterDate.toLocaleDateString()
+        )
+      );
+      setFilteredChatMembers(filteredByDate);
+    } else {
+      setFilteredChatMembers(filteredChannels);
+    }
+  };
 
-    setFilteredChatMembers(filteredChannels);
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    setFilterDate(selectedDate ? new Date(selectedDate) : null);
   };
 
   return (
@@ -33,6 +51,11 @@ const Dashboard = ({ chatMembers }) => {
                 onChange={handleSearchChange}
               />
             </div>
+            <input
+              type="date"
+              value={filterDate ? filterDate.toISOString().split("T")[0] : ""}
+              onChange={handleDateChange}
+            />
           </div>
         </div>
 
