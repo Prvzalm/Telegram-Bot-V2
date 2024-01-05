@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Navbar from "./Components/Navbar.jsx";
+import Dashboard from "./Components/Dashboard.jsx";
 import Layout from "./Components/Layout.jsx";
 import Customer from "./Components/Customer.jsx";
 import ErrorPage from "./Components/ErrorPage.jsx";
@@ -40,7 +40,7 @@ function App() {
       children: [
         {
           path: "dashboard",
-          element: <Navbar chatMembers={chatMembers} />,
+          element: <Dashboard chatMembers={chatMembers} />,
         },
         {
           path: "customer",

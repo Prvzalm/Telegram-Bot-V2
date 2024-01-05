@@ -7,8 +7,14 @@
   /*
    * Sidebar
    */
-  
+   
   @media (min-width: 768px) {
+    .sidebar {
+      height: 100%;
+      position: fixed;
+      top: 2rem
+      }
+    
     .sidebar .offcanvas-lg {
       position: -webkit-sticky;
       position: sticky;
