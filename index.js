@@ -27,7 +27,6 @@ bot.on('chat_member', async (ctx) => {
   const memberId = ctx.chatMember.new_chat_member.user.id;
   const chatLink = ctx.chatMember.invite_link ? ctx.chatMember.invite_link.invite_link : "None";
   const status = ctx.chatMember.new_chat_member.status
-  console.log(chatLink)
 
   if (status === 'member') {
     try {
