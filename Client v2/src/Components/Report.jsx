@@ -10,7 +10,7 @@ const Report = ({ chatMembers }) => {
 
   const getChannelsDetailsByDate = () => {
     const channelsDetails = [];
-
+  
     chatMembers.forEach((channel) => {
       const membersOnDate = selectedDate
         ? channel.members.filter(
@@ -19,32 +19,37 @@ const Report = ({ chatMembers }) => {
               new Date(selectedDate).toDateString()
           )
         : channel.members;
-
+  
       if (membersOnDate.length > 0) {
         const linkDetails = membersOnDate.reduce((acc, member) => {
           const link = member.chatLink || "None";
-
+  
           if (!acc[link]) {
             acc[link] = {
               chatLink: link,
               memberCount: 0,
+              leftMemberCount: 0, // Initialize leftMemberCount
             };
           }
-
-          acc[link].memberCount++;
-
+  
+          if (member.leftAt) {
+            acc[link].leftMemberCount++;
+          } else {
+            acc[link].memberCount++;
+          }
+  
           return acc;
         }, {});
-
+  
         channelsDetails.push({
           channelName: channel.channelName,
           linkDetails: Object.values(linkDetails),
         });
       }
     });
-
+  
     return channelsDetails;
-  };
+  };  
 
   return (
     <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -68,6 +73,7 @@ const Report = ({ chatMembers }) => {
             <th>Channel Name</th>
             <th>Chat Link</th>
             <th>Member Count</th>
+            <th>Left Member Count</th>
           </tr>
         </thead>
         <tbody>
@@ -85,6 +91,13 @@ const Report = ({ chatMembers }) => {
                 <ul>
                   {channel.linkDetails.map((link, linkIndex) => (
                     <li key={linkIndex}>{link.memberCount}</li>
+                  ))}
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  {channel.linkDetails.map((link, linkIndex) => (
+                    <li key={linkIndex}>{link.leftMemberCount}</li>
                   ))}
                 </ul>
               </td>
