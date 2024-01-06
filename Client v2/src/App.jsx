@@ -6,7 +6,7 @@ import Dashboard from "./Components/Dashboard.jsx";
 import Layout from "./Components/Layout.jsx";
 import Customer from "./Components/Customer.jsx";
 import ErrorPage from "./Components/ErrorPage.jsx";
-import ChannelDetailsByDate from "./Components/ChannelDetailsByDate.jsx";
+import Report from "./Components/Report.jsx";
 
 function App() {
 
@@ -52,7 +52,7 @@ useEffect(() => {
         },
         {
           path: "report",
-          element: <ChannelDetailsByDate chatMembers={chatMembers} />,
+          element: <Report chatMembers={chatMembers} />,
         },
       ],
     },

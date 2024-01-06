@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const ChannelDetailsByDate = ({ chatMembers }) => {
+const Report = ({ chatMembers }) => {
   const [selectedDate, setSelectedDate] = useState("");
 
   const handleDateChange = (e) => {
@@ -96,8 +96,8 @@ const ChannelDetailsByDate = ({ chatMembers }) => {
   );
 };
 
-ChannelDetailsByDate.propTypes = {
+Report.propTypes = {
   chatMembers: PropTypes.array.isRequired,
 };
 
-export default ChannelDetailsByDate;
+export default Report;
