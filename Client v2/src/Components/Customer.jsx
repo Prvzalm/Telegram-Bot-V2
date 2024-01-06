@@ -16,11 +16,20 @@ const Customer = ({ chatMembers }) => {
     setFilteredChatMembers(filteredChannels);
   };
 
-  const getUniqueLinks = (members) => {
-    const uniqueLinks = Array.from(
-      new Set(members.map((member) => member.chatLink))
-    );
-    return uniqueLinks.join(", ");
+  const getMembersCountByLink = (members) => {
+    const membersCountByLink = {};
+
+    members.forEach((member) => {
+      const link = member.chatLink || "None";
+
+      if (membersCountByLink[link]) {
+        membersCountByLink[link]++;
+      } else {
+        membersCountByLink[link] = 1;
+      }
+    });
+
+    return membersCountByLink;
   };
 
   return (
@@ -42,26 +51,32 @@ const Customer = ({ chatMembers }) => {
             </div>
           </div>
         </div>
-        <div className="channel-table">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ padding: "0 9rem 0 0" }}>Channel Name</th>
-                <th style={{ width: "7rem" }}>Invite Links</th>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Channel Name</th>
+              <th>Invite Links</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredChatMembers.map((channel) => (
+              <tr key={channel._id}>
+                <td>{channel.channelName}</td>
+                <td>
+                  <ul>
+                    {Object.entries(getMembersCountByLink(channel.members)).map(
+                      ([link, count]) => (
+                        <li key={link}>
+                          {link === "None" ? "No Link" : link}: {count}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredChatMembers.map((channel) => (
-                <tr key={channel._id}>
-                  <td>
-                    {channel.channelName}
-                  </td>
-                  <td>{getUniqueLinks(channel.members)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </main>
     </>
   );

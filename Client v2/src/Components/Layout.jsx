@@ -152,23 +152,23 @@ const Layout = () => {
               <li className="nav-item">
                 <Link
                   className="nav-link d-flex align-items-center gap-2"
+                  to="report"
+                >
+                  <svg className="bi">
+                    <use xlinkHref="#graph-up" />
+                  </svg>
+                  Reports
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className="nav-link d-flex align-items-center gap-2"
                   to="/customer"
                 >
                   <svg className="bi">
                     <use xlinkHref="#people" />
                   </svg>
                   Customers
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link d-flex align-items-center gap-2"
-                  to="#"
-                >
-                  <svg className="bi">
-                    <use xlinkHref="#graph-up" />
-                  </svg>
-                  Reports
                 </Link>
               </li>
             </ul>

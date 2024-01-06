@@ -13,7 +13,7 @@ const Dashboard = ({ chatMembers }) => {
     const filteredChannels = chatMembers.filter((channel) =>
       channel.channelName.toLowerCase().includes(query)
     );
-    
+
     if (filterDate) {
       const filteredByDate = filteredChannels.filter((channel) =>
         channel.members.some(
@@ -51,11 +51,13 @@ const Dashboard = ({ chatMembers }) => {
                 onChange={handleSearchChange}
               />
             </div>
-            <input
-              type="date"
-              value={filterDate ? filterDate.toISOString().split("T")[0] : ""}
-              onChange={handleDateChange}
-            />
+            <div className="input-group rounded">
+              <input
+                type="date"
+                value={filterDate ? filterDate.toISOString().split("T")[0] : ""}
+                onChange={handleDateChange}
+              />
+            </div>
           </div>
         </div>
 
