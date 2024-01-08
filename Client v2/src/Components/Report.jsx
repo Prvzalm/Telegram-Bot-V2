@@ -1,41 +1,65 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { Modal, Button } from "react-bootstrap";
+import { DateRangePicker } from "react-date-range";
 
 const Report = ({ chatMembers }) => {
-  const [selectedDate, setSelectedDate] = useState("");
 
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
+  const [showModal, setShowModal] = useState(false);
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: "selection",
+    },
+  ]);
+
+  const handleDateChange = (ranges) => {
+    setDateRange([ranges.selection]);
   };
 
-  const getChannelsDetailsByDate = () => {
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const getChannelsDetailsByDateRange = () => {
     const channelsDetails = [];
   
     chatMembers.forEach((channel) => {
-      const membersOnDate = selectedDate
+      const membersInDateRange = dateRange[0].startDate && dateRange[0].endDate
         ? channel.members.filter(
-            (member) =>
-              new Date(member.joinedAt).toDateString() ===
-              new Date(selectedDate).toDateString()
+            (member) => {
+              const joinedDate = new Date(member.joinedAt);
+              return (
+                (!dateRange[0].startDate || joinedDate >= dateRange[0].startDate) &&
+                (!dateRange[0].endDate || joinedDate <= dateRange[0].endDate)
+              );
+            }
           )
         : channel.members;
   
-      if (membersOnDate.length > 0) {
-        const linkDetails = membersOnDate.reduce((acc, member) => {
+      if (membersInDateRange.length > 0) {
+        const linkDetails = membersInDateRange.reduce((acc, member) => {
           const link = member.chatLink || "None";
   
           if (!acc[link]) {
             acc[link] = {
               chatLink: link,
               memberCount: 0,
-              leftMemberCount: 0, // Initialize leftMemberCount
+              leftMemberCount: 0,
             };
           }
   
           if (member.leftAt) {
             acc[link].leftMemberCount++;
           }
-
+  
           if (member.joinedAt) {
             acc[link].memberCount++;
           }
@@ -51,21 +75,38 @@ const Report = ({ chatMembers }) => {
     });
   
     return channelsDetails;
-  };  
+  };
+  
 
   return (
     <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Channels Details on {selectedDate}:</h1>
+        <h1 className="h2">Channels Details on {}:</h1>
         <div className="btn-toolbar mb-2 mb-md-0">
-          <label htmlFor="dateInput">Select Date: </label>
           <div className="input-group rounded">
-            <input
-              type="date"
-              id="dateInput"
-              value={selectedDate}
-              onChange={handleDateChange}
-            />
+            <Button variant="primary" onClick={openModal}>
+              Select Date
+            </Button>
+            <Modal show={showModal} onHide={closeModal} size="lg">
+              <Modal.Header closeButton>
+                <Modal.Title>Date Range</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <DateRangePicker
+                  onChange={handleDateChange}
+                  showSelectionPreview={true}
+                  moveRangeOnFirstSelection={false}
+                  months={1}
+                  ranges={dateRange}
+                  direction="horizontal"
+                />
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="primary" onClick={closeModal}>
+                  OK
+                </Button>
+              </Modal.Footer>
+            </Modal>
           </div>
         </div>
       </div>
@@ -79,7 +120,7 @@ const Report = ({ chatMembers }) => {
           </tr>
         </thead>
         <tbody>
-          {getChannelsDetailsByDate().map((channel, index) => (
+          {getChannelsDetailsByDateRange().map((channel, index) => (
             <tr key={index}>
               <td>{channel.channelName}</td>
               <td>
