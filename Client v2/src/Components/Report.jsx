@@ -34,7 +34,9 @@ const Report = ({ chatMembers }) => {
   
           if (member.leftAt) {
             acc[link].leftMemberCount++;
-          } else {
+          }
+
+          if (member.joinedAt) {
             acc[link].memberCount++;
           }
   
