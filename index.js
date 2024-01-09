@@ -13,10 +13,17 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/telegramBot');
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => console.log('Connected to MongoDB'));
+async function connectToDatabase() {
+  try {
+    await mongoose.connect('mongodb+srv://prvzalm69:Parvez013@cluster0.4kdbfnf.mongodb.net/?retryWrites=true&w=majority');
+    console.log('Connected to MongoDB Atlas');
+  } catch (error) {
+    console.error('Error connecting to MongoDB Atlas:', error);
+  }
+}
+
+// Call this function to connect to the database
+connectToDatabase();
 
 // Create a new instance of Telegraf
 const bot = new Telegraf(process.env.TOKEN);
