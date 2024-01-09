@@ -15,7 +15,7 @@ app.use(cors());
 // Connect to MongoDB
 async function connectToDatabase() {
   try {
-    await mongoose.connect('mongodb+srv://prvzalm69:Parvez013@cluster0.4kdbfnf.mongodb.net/?retryWrites=true&w=majority');
+    await mongoose.connect(process.env.URL);
     console.log('Connected to MongoDB Atlas');
   } catch (error) {
     console.error('Error connecting to MongoDB Atlas:', error);
