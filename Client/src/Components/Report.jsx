@@ -53,6 +53,7 @@ const Report = ({ chatMembers }) => {
               chatLink: link,
               memberCount: 0,
               leftMemberCount: 0,
+              uniqueMembers: new Set(), // Track unique members using a Set
             };
           }
   
@@ -60,8 +61,10 @@ const Report = ({ chatMembers }) => {
             acc[link].leftMemberCount++;
           }
   
-          if (member.joinedAt) {
+          if (member.joinedAt && !acc[link].uniqueMembers.has(member.memberId)) {
+            // Increase member count only if the member hasn't been counted before
             acc[link].memberCount++;
+            acc[link].uniqueMembers.add(member.memberId);
           }
   
           return acc;
@@ -76,6 +79,7 @@ const Report = ({ chatMembers }) => {
   
     return channelsDetails;
   };
+  
   
 
   return (
