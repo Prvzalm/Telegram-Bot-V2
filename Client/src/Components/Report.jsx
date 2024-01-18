@@ -4,6 +4,7 @@ import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { Modal, Button } from "react-bootstrap";
 import { DateRangePicker } from "react-date-range";
+import "./Report.css";
 
 const Report = ({ chatMembers }) => {
 
@@ -83,7 +84,7 @@ const Report = ({ chatMembers }) => {
   
 
   return (
-    <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <main className="table-responsive col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 className="h2">Channels Details on {}:</h1>
         <div className="btn-toolbar mb-2 mb-md-0">
@@ -114,7 +115,7 @@ const Report = ({ chatMembers }) => {
           </div>
         </div>
       </div>
-      <table className="table">
+      <table className="table table-striped table-sm">
         <thead>
           <tr>
             <th>Channel Name</th>
@@ -123,7 +124,7 @@ const Report = ({ chatMembers }) => {
             <th>Left Member Count</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="table-group-divider">
           {getChannelsDetailsByDateRange().map((channel, index) => (
             <tr key={index}>
               <td>{channel.channelName}</td>
@@ -134,14 +135,14 @@ const Report = ({ chatMembers }) => {
                   ))}
                 </ul>
               </td>
-              <td>
+              <td className="table-success">
                 <ul>
                   {channel.linkDetails.map((link, linkIndex) => (
                     <li key={linkIndex}>{link.memberCount}</li>
                   ))}
                 </ul>
               </td>
-              <td>
+              <td className="table-danger">
                 <ul>
                   {channel.linkDetails.map((link, linkIndex) => (
                     <li key={linkIndex}>{link.leftMemberCount}</li>
