@@ -44,7 +44,7 @@ useEffect(() => {
       children: [
         {
           path: "",
-          element: <Report chatMembers={chatMembers} />,
+          element: <Dashboard chatMembers={chatMembers} />,
         },
         {
           path: "dashboard",

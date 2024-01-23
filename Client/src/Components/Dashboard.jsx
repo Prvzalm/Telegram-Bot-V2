@@ -70,22 +70,6 @@ const Dashboard = ({ chatMembers }) => {
               <br />
               <strong>Left Members Count:</strong> {chat.leftMembersCount}
               <br />
-              <strong>Members:</strong>
-              <ul>
-                {chat.members.map((member) => (
-                  <li key={member.memberId}>
-                    Member ID: {member.memberId}, Joined At:{" "}
-                    {member.joinedAt
-                      ? new Date(member.joinedAt).toLocaleString()
-                      : "N/A"}
-                    , Left At:{" "}
-                    {member.leftAt
-                      ? new Date(member.leftAt).toLocaleString()
-                      : "N/A"}
-                    , Invite Link: {member.chatLink}
-                  </li>
-                ))}
-              </ul>
               <hr />
             </li>
           ))}
