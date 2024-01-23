@@ -41,20 +41,7 @@ bot.on('chat_member', async (ctx) => {
         channelName: chatName,
       });
     
-      if (!existingChatMember) {
-        // Create a new document if it doesn't exist
-        await ChatMember.create({
-          channelName: chatName,
-          joinedMembersCount: 1, // Increment joinedMembersCount for the channel
-          members: [{
-            memberId,
-            chatLink: chatLink,
-            joinedAt: new Date(),
-          }],
-        });
-    
-        console.log(`New member joined! Channel ID: ${chatName}, Member ID: ${memberId}, Chat Link: ${chatLink}`);
-      } else {
+      if (existingChatMember) {
         // Update array element if it's an array
         await ChatMember.updateOne(
           {
@@ -73,6 +60,20 @@ bot.on('chat_member', async (ctx) => {
         );
     
         console.log(`Member updated! Channel ID: ${chatName}, Member ID: ${memberId}, Chat Link: ${chatLink}`);
+        
+      } else {
+        // Create a new document if it doesn't exist
+        await ChatMember.create({
+          channelName: chatName,
+          joinedMembersCount: 1, // Increment joinedMembersCount for the channel
+          members: [{
+            memberId,
+            chatLink: chatLink,
+            joinedAt: new Date(),
+          }],
+        });
+    
+        console.log(`New member joined! Channel ID: ${chatName}, Member ID: ${memberId}, Chat Link: ${chatLink}`);
       }
     } catch (error) {
       console.error('Error updating chat member in MongoDB:', error);
