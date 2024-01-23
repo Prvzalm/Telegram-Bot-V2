@@ -43,6 +43,10 @@ useEffect(() => {
       errorElement: <ErrorPage />,
       children: [
         {
+          path: "",
+          element: <Report chatMembers={chatMembers} />,
+        },
+        {
           path: "dashboard",
           element: <Dashboard chatMembers={chatMembers} />,
         },
