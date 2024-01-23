@@ -3,12 +3,15 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require("cookie-parser");
+const authRoute = require("./routes/AuthRoute");
 const chatMembersRouter = require('./routes/chatMembers');
 const ChatMember = require('./models/ChatMemberSchema')
 
 const app = express();
 const port = 5000;
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
 
@@ -60,7 +63,7 @@ bot.on('chat_member', async (ctx) => {
         );
     
         console.log(`Member updated! Channel ID: ${chatName}, Member ID: ${memberId}, Chat Link: ${chatLink}`);
-        
+
       } else {
         // Create a new document if it doesn't exist
         await ChatMember.create({
@@ -108,6 +111,7 @@ bot.launch({
 
 // Use the route
 app.use('/api/chatMembers', chatMembersRouter);
+app.use("/api", authRoute);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
