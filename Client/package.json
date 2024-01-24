@@ -13,9 +13,11 @@
     "axios": "^1.6.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
+    "react-cookie": "^7.0.1",
     "react-date-range": "^2.0.0-alpha.4",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.1"
+    "react-router-dom": "^6.21.1",
+    "react-toastify": "^10.0.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

@@ -7,34 +7,28 @@ import Layout from "./Components/Layout.jsx";
 import Customer from "./Components/Customer.jsx";
 import ErrorPage from "./Components/ErrorPage.jsx";
 import Report from "./Components/Report.jsx";
+import Signup from "./Components/Signup.jsx";
+import Login from "./Components/Login.jsx";
 
 function App() {
-
   const [chatMembers, setChatMembers] = useState([]);
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        "/api/chatMembers"
-      );
-      setChatMembers(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/chatMembers");
+        setChatMembers(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  // Initial data fetch
-  fetchData();
-
-  // Set up interval for periodic data fetching
-  const intervalId = setInterval(() => {
+    // Initial data fetch
     fetchData();
-  }, 1000);
 
-  // Clean up the interval on component unmount
-  return () => clearInterval(intervalId);
-}, []); // Empty dependency array ensures that the effect runs only once on mount
+    // Set up interval for periodic data fetching
+
+  }, []); // Empty dependency array ensures that the effect runs only once on mount
 
   const router = createBrowserRouter([
     {
@@ -59,6 +53,14 @@ useEffect(() => {
           element: <Report chatMembers={chatMembers} />,
         },
       ],
+    },
+    {
+      path: "/signup",
+      element: <Signup />,
+    },
+    {
+      path: "/login",
+      element: <Login />,
     },
   ]);
 

@@ -1,6 +1,40 @@
 import { Link, Outlet } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
+import axios from "axios";
 
 const Layout = () => {
+
+  const navigate = useNavigate();
+  const [cookies, removeCookie] = useCookies([]);
+
+  useEffect(() => {
+    const verifyCookie = async () => {
+      if (!cookies.token) {
+        navigate("/login");
+      }
+      const { data } = await axios.post(
+        "/api",
+        {},
+        { withCredentials: true }
+      );
+      const { status } = data;
+      return status
+        ? toast(`Hello`, {
+            position: "top-right",
+          })
+        : (removeCookie("token"), navigate("/login"));
+    };
+    verifyCookie();
+  }, [cookies, navigate, removeCookie]);
+
+  const Logout = () => {
+    removeCookie("token");
+    navigate("/signup");
+  };
+
   return (
     <>
       <svg xmlns="http://www.w3.org/2000/svg" className="d-none">
@@ -214,7 +248,8 @@ const Layout = () => {
                 </a>
               </li>
               <li className="nav-item">
-                <a
+                <button
+                  onClick={Logout}
                   className="nav-link d-flex align-items-center gap-2"
                   href="#"
                 >
@@ -222,12 +257,13 @@ const Layout = () => {
                     <use xlinkHref="#door-closed" />
                   </svg>
                   Sign out
-                </a>
+                </button>
               </li>
             </ul>
           </div>
         </div>
       </div> <Outlet />
+      <ToastContainer />
     </>
   );
 };

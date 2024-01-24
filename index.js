@@ -13,7 +13,10 @@ const port = 5000;
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin : "http://localhost:5173",
+  credentials: true, 
+}));
 
 // Connect to MongoDB
 async function connectToDatabase() {
@@ -110,7 +113,7 @@ bot.launch({
 }).then(() => console.log('Bot is running...'));
 
 // Use the route
-app.use('/api/chatMembers', chatMembersRouter);
+app.use("/api/chatMembers", chatMembersRouter);
 app.use("/api", authRoute);
 
 app.listen(port, () => {
