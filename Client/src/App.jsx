@@ -1,5 +1,5 @@
 // src/App.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./Components/Dashboard.jsx";
@@ -9,26 +9,28 @@ import ErrorPage from "./Components/ErrorPage.jsx";
 import Report from "./Components/Report.jsx";
 import Signup from "./Components/Signup.jsx";
 import Login from "./Components/Login.jsx";
+import LoadingBar from 'react-top-loading-bar'
 
 function App() {
   const [chatMembers, setChatMembers] = useState([]);
+  const ref = useRef(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        ref.current.continuousStart()
         const response = await axios.get("/api/chatMembers");
         setChatMembers(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        // Hide the loading bar after data is fetched
+        ref.current.complete();
       }
     };
 
-    // Initial data fetch
     fetchData();
-
-    // Set up interval for periodic data fetching
-
-  }, []); // Empty dependency array ensures that the effect runs only once on mount
+  }, []);
 
   const router = createBrowserRouter([
     {
@@ -67,6 +69,7 @@ function App() {
   return (
     <div className="row container-fluid">
       <RouterProvider router={router} />
+      <LoadingBar color='red' ref={ref} />
     </div>
   );
 }
