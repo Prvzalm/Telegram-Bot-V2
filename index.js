@@ -37,6 +37,7 @@ const bot = new Telegraf(process.env.TOKEN);
 // Middleware to handle new chat members
 bot.on('chat_member', async (ctx) => {
   const chatName = ctx.chatMember.chat.title;
+  const chatId = ctx.chatMember.chat.id;
   const memberId = ctx.chatMember.new_chat_member.user.id;
   const chatLink = ctx.chatMember.invite_link ? ctx.chatMember.invite_link.invite_link : "None";
   const status = ctx.chatMember.new_chat_member.status
@@ -46,6 +47,7 @@ bot.on('chat_member', async (ctx) => {
       const updateResult = await ChatMember.findOneAndUpdate(
         { channelName: chatName }, // Check if memberId doesn't exist
         {
+          $set: { chatId: chatId },
           $inc: { joinedMembersCount: 1 },
           $push: {
             members: {
