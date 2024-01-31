@@ -7,10 +7,10 @@ import "../Signin.css"
 const Login = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
-    email: "",
+    chatId: "",
     password: "",
   });
-  const { email, password } = inputValue;
+  const { chatId, password } = inputValue;
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -23,8 +23,8 @@ const Login = () => {
     toast.error(err, {
       position: "bottom-left",
     });
-  const handleSuccess = (msg) =>
-    toast.success(msg, {
+  const handleSuccess = (message) =>
+    toast.success(message, {
       position: "bottom-left",
     });
 
@@ -53,7 +53,7 @@ const Login = () => {
     }
     setInputValue({
       ...inputValue,
-      email: "",
+      chatId: "",
       password: "",
     });
   };
@@ -65,14 +65,14 @@ const Login = () => {
         <h1 className="h3 mb-3 fw-normal">Log in</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-floating">
-          <label className="form-label" htmlFor="email">Email</label>
+          <label className="form-label" htmlFor="chatId">Chat Id</label>
           <input
             className="form-control"
-            type="email"
-            id="email"
-            name="email"
-            value={email ? email : ''}
-            placeholder="Enter your email"
+            type="chatId"
+            id="chatId"
+            name="chatId"
+            value={chatId ? chatId : ''}
+            placeholder="Enter your Chat Id"
             onChange={handleOnChange}
           />
         </div>

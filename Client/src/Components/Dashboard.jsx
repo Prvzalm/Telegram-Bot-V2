@@ -66,6 +66,8 @@ const Dashboard = ({ chatMembers }) => {
             <li key={chat._id}>
               <strong>Channel Name:</strong> {chat.channelName}
               <br />
+              <strong>Channel ID:</strong> {chat.chatId}
+              <br />
               <strong>Joined Members Count:</strong> {chat.joinedMembersCount}
               <br />
               <strong>Left Members Count:</strong> {chat.leftMembersCount}

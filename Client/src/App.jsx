@@ -9,7 +9,8 @@ import ErrorPage from "./Components/ErrorPage.jsx";
 import Report from "./Components/Report.jsx";
 import Signup from "./Components/Signup.jsx";
 import Login from "./Components/Login.jsx";
-import LoadingBar from 'react-top-loading-bar'
+import LoadingBar from 'react-top-loading-bar';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [chatMembers, setChatMembers] = useState([]);

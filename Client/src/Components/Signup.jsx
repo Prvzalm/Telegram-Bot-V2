@@ -7,11 +7,11 @@ import "../Signin.css";
 const Signup = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
-    email: "",
+    chatId: "",
     password: "",
-    name: "",
+    channelName: "",
   });
-  const { email, password, name } = inputValue;
+  const { chatId, password, channelName } = inputValue;
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -24,8 +24,8 @@ const Signup = () => {
     toast.error(err, {
       position: "bottom-left",
     });
-  const handleSuccess = (msg) =>
-    toast.success(msg, {
+  const handleSuccess = (message) =>
+    toast.success(message, {
       position: "bottom-right",
     });
 
@@ -53,9 +53,9 @@ const Signup = () => {
     }
     setInputValue({
       ...inputValue,
-      email: "",
+      chatId: "",
       password: "",
-      name: "",
+      channelName: "",
     });
   };
 
@@ -72,30 +72,30 @@ const Signup = () => {
         <h1 className="h3 mb-3 fw-normal">Sign in</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-floating">
-            <label className="form-label" htmlFor="name">
-              Name
+            <label className="form-label" htmlFor="channelName">
+              Channel Name
             </label>
             <input
               className="form-control"
               type="text"
-              id="name"
-              name="name"
-              value={name}
-              placeholder="Enter your name"
+              id="channelName"
+              name="channelName"
+              value={channelName}
+              placeholder="Enter your Channel Name"
               onChange={handleOnChange}
             />
           </div>
           <div className="form-floating">
-            <label className="form-label" htmlFor="email">
-              Email
+            <label className="form-label" htmlFor="chatId">
+              chatId
             </label>
             <input
               className="form-control"
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              placeholder="Enter your email"
+              type="chatId"
+              id="chatId"
+              name="chatId"
+              value={chatId}
+              placeholder="Enter your Chat Id"
               onChange={handleOnChange}
             />
           </div>

@@ -5,6 +5,8 @@ import { useCookies } from "react-cookie";
 import { useEffect } from "react";
 import axios from "axios";
 
+const customId = "custom-id-yes";
+
 const Layout = () => {
 
   const navigate = useNavigate();
@@ -20,10 +22,11 @@ const Layout = () => {
         {},
         { withCredentials: true }
       );
-      const { status } = data;
+      const { status, user } = data;
       return status
-        ? toast(`Hello`, {
+        ? toast(`Hello ${user}`, {
             position: "top-right",
+            toastId: customId
           })
         : (removeCookie("token"), navigate("/login"));
     };

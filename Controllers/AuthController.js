@@ -4,12 +4,12 @@ const bcrypt = require("bcryptjs");
 
 module.exports.Signup = async (req, res, next) => {
   try {
-    const { email, password, name, createdAt } = req.body;
-    const existingUser = await User.findOne({ email });
+    const { chatId, password, channelName, createdAt } = req.body;
+    const existingUser = await User.findOne({ chatId });
     if (existingUser) {
       return res.json({ message: "User already exists" });
     }
-    const user = await User.create({ email, password, name, createdAt });
+    const user = await User.create({ chatId, password, channelName, createdAt });
     const token = createSecretToken(user._id);
     res.cookie("token", token, {
       withCredentials: true,
@@ -26,17 +26,17 @@ module.exports.Signup = async (req, res, next) => {
 
 module.exports.Login = async (req, res, next) => {
     try {
-      const { email, password } = req.body;
-      if(!email || !password ){
+      const { chatId, password } = req.body;
+      if(!chatId || !password ){
         return res.json({message:'All fields are required'})
       }
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ chatId });
       if(!user){
-        return res.json({message:'Incorrect password or email' }) 
+        return res.json({message:'Incorrect password or Chat Id' }) 
       }
       const auth = await bcrypt.compare(password,user.password)
       if (!auth) {
-        return res.json({message:'Incorrect password or email' }) 
+        return res.json({message:'Incorrect password or Chat Id' }) 
       }
        const token = createSecretToken(user._id);
        res.cookie("token", token, {

@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
-  name: {
+  channelName: {
     type: String,
-    required: [true, "Enter your name"],
+    required: [true, "Enter your channel name"],
   },
-  email: {
+  chatId: {
     type: String,
-    required: [true, "Your email address is required"],
+    required: [true, "Your Chat Id is required"],
     unique: true,
   },
   password: {
